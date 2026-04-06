@@ -1,0 +1,9 @@
+const AuthCard = ({ children }) => {
+  return (
+    <div className="bg-white/10 backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl p-8">
+      {children}
+    </div>
+  );
+};
+
+export default AuthCard;
