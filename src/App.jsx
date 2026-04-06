@@ -26,6 +26,51 @@ function App() {
           </ProtectedRoute>
         }
       />
+
+      {/* Temporary Placeholder Routes */}
+      <Route
+        path="/applications"
+        element={
+          <ProtectedRoute>
+            <div className="min-h-screen bg-slate-950 text-white p-10">
+              Applications Page Coming Next...
+            </div>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/interviews"
+        element={
+          <ProtectedRoute>
+            <div className="min-h-screen bg-slate-950 text-white p-10">
+              Interview Reflections Page Coming Next...
+            </div>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/analytics"
+        element={
+          <ProtectedRoute>
+            <div className="min-h-screen bg-slate-950 text-white p-10">
+              Analytics Page Coming Next...
+            </div>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <div className="min-h-screen bg-slate-950 text-white p-10">
+              Profile Page Coming Next...
+            </div>
+          </ProtectedRoute>
+        }
+      />
     </Routes>
   );
 }

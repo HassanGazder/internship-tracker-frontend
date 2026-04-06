@@ -1,19 +1,19 @@
 import { NavLink } from "react-router-dom";
 
-// eslint-disable-next-line no-unused-vars
-const NavItem = ({ to, icon: IconComponent, label }) => {
+const NavItem = ({ to, label, icon: Icon, onClick }) => { // eslint-disable-line no-unused-vars
   return (
     <NavLink
       to={to}
+      onClick={onClick}
       className={({ isActive }) =>
-        `flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all ${
+        `flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200 text-sm font-medium group ${
           isActive
-            ? "bg-[var(--color-primary)] text-white"
-            : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+            ? "bg-indigo-600 text-white shadow-lg"
+            : "text-slate-300 hover:bg-white/5 hover:text-white"
         }`
       }
     >
-      <IconComponent size={18} />
+      <Icon size={18} className="shrink-0" />
       <span>{label}</span>
     </NavLink>
   );
