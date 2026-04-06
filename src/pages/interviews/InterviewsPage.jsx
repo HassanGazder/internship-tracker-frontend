@@ -1,22 +1,20 @@
-import React, { useState } from "react";
+import DashboardLayout from "../../components/layout/DashboardLayout";
 
-const InterviewsPage = () => {
-  const [interviews] = useState([]);
-
+function InterviewsPage() {
   return (
-    <div>
-      <h1 className="text-3xl font-bold mb-6">Interviews</h1>
-      <div className="bg-white rounded-lg shadow p-6">
-        {interviews.length === 0 ? (
-          <p className="text-gray-500">No interviews scheduled yet.</p>
-        ) : (
-          <div>
-            {/* Interview list will be displayed here */}
-          </div>
-        )}
+    <DashboardLayout>
+      <div className="space-y-6">
+        <h1 className="text-3xl font-bold text-white">Interview Reflections</h1>
+        <p className="text-slate-400">
+          This page will show your interview notes, questions asked, feedback, and self-reflections.
+        </p>
+
+        <div className="rounded-3xl border border-slate-800 bg-slate-900/80 p-8">
+          <p className="text-slate-300">Interview module connected next.</p>
+        </div>
       </div>
-    </div>
+    </DashboardLayout>
   );
-};
+}
 
 export default InterviewsPage;

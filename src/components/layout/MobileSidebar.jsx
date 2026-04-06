@@ -1,65 +1,35 @@
-import { X, GraduationCap } from "lucide-react";
-import { navLinks } from "./NavLinks";
-import NavItem from "./NavItems";
-import { AnimatePresence } from "framer-motion";
+import { X } from "lucide-react";
+import NavLinks from "./NavLinks";
 
-const MobileSidebar = ({ open, onClose }) => {
+function MobileSidebar({ isOpen, onClose }) {
+  if (!isOpen) return null;
+
   return (
-    <AnimatePresence>
-      {open && (
-        <>
-          {/* Backdrop */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+    <div className="fixed inset-0 z-50 lg:hidden">
+      <div
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        onClick={onClose}
+      />
+
+      <div className="absolute left-0 top-0 h-full w-72 bg-slate-950 border-r border-slate-800 p-6 shadow-2xl">
+        <div className="mb-8 flex items-center justify-between">
+          <div>
+            <h1 className="text-xl font-bold text-white">InternTrack</h1>
+            <p className="text-sm text-slate-400">Student Portal</p>
+          </div>
+
+          <button
             onClick={onClose}
-            className="fixed inset-0 bg-black/50 z-40 lg:hidden"
-          />
-
-          {/* Sidebar */}
-          <motion.div
-            initial={{ x: -320 }}
-            animate={{ x: 0 }}
-            exit={{ x: -320 }}
-            transition={{ duration: 0.25 }}
-            className="fixed top-0 left-0 h-full w-72 bg-slate-950 border-r border-white/10 z-50 p-5 lg:hidden"
+            className="rounded-xl border border-slate-700 p-2 text-slate-300 hover:bg-slate-800"
           >
-            <div className="flex items-center justify-between mb-8">
-              <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-indigo-500 to-cyan-500 flex items-center justify-center">
-                  <GraduationCap className="text-white" size={22} />
-                </div>
-                <div>
-                  <h1 className="text-white text-lg font-bold">Internship Tracker</h1>
-                  <p className="text-slate-400 text-sm">Student Portal</p>
-                </div>
-              </div>
+            <X size={18} />
+          </button>
+        </div>
 
-              <button
-                onClick={onClose}
-                className="text-slate-300 hover:text-white"
-              >
-                <X size={22} />
-              </button>
-            </div>
-
-            <nav className="flex flex-col gap-3">
-              {navLinks.map((item) => (
-                <NavItem
-                  key={item.name}
-                  to={item.path}
-                  icon={item.icon}
-                  label={item.name}
-                  onClick={onClose}
-                />
-              ))}
-            </nav>
-          </motion.div>
-        </>
-      )}
-    </AnimatePresence>
+        <NavLinks />
+      </div>
+    </div>
   );
-};
+}
 
 export default MobileSidebar;

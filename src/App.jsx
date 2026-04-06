@@ -2,6 +2,10 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import LoginPage from "./pages/auth/LoginPage";
 import RegisterPage from "./pages/auth/RegisterPage";
 import DashboardPage from "./pages/dashboard/DashboardPage";
+import ApplicationsPage from "./pages/applications/ApplicationsPage";
+import InterviewsPage from "./pages/interviews/InterviewsPage";
+import AnalyticsPage from "./pages/analytics/AnalyticsPage";
+import ProfilePage from "./pages/profile/ProfilePage";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import { useAuth } from "./context/AuthContext";
 
@@ -10,14 +14,23 @@ function App() {
 
   return (
     <Routes>
+      {/* Default Redirect */}
       <Route
         path="/"
         element={<Navigate to={isAuthenticated ? "/dashboard" : "/login"} />}
       />
 
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/register" element={<RegisterPage />} />
+      {/* Public Routes */}
+      <Route
+        path="/login"
+        element={isAuthenticated ? <Navigate to="/dashboard" /> : <LoginPage />}
+      />
+      <Route
+        path="/register"
+        element={isAuthenticated ? <Navigate to="/dashboard" /> : <RegisterPage />}
+      />
 
+      {/* Protected Routes */}
       <Route
         path="/dashboard"
         element={
@@ -27,14 +40,11 @@ function App() {
         }
       />
 
-      {/* Temporary Placeholder Routes */}
       <Route
         path="/applications"
         element={
           <ProtectedRoute>
-            <div className="min-h-screen bg-slate-950 text-white p-10">
-              Applications Page Coming Next...
-            </div>
+            <ApplicationsPage />
           </ProtectedRoute>
         }
       />
@@ -43,9 +53,7 @@ function App() {
         path="/interviews"
         element={
           <ProtectedRoute>
-            <div className="min-h-screen bg-slate-950 text-white p-10">
-              Interview Reflections Page Coming Next...
-            </div>
+            <InterviewsPage />
           </ProtectedRoute>
         }
       />
@@ -54,9 +62,7 @@ function App() {
         path="/analytics"
         element={
           <ProtectedRoute>
-            <div className="min-h-screen bg-slate-950 text-white p-10">
-              Analytics Page Coming Next...
-            </div>
+            <AnalyticsPage />
           </ProtectedRoute>
         }
       />
@@ -65,11 +71,15 @@ function App() {
         path="/profile"
         element={
           <ProtectedRoute>
-            <div className="min-h-screen bg-slate-950 text-white p-10">
-              Profile Page Coming Next...
-            </div>
+            <ProfilePage />
           </ProtectedRoute>
         }
+      />
+
+      {/* Catch All */}
+      <Route
+        path="*"
+        element={<Navigate to={isAuthenticated ? "/dashboard" : "/login"} />}
       />
     </Routes>
   );

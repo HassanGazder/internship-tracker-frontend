@@ -1,10 +1,14 @@
-const EmptyState = ({ title, description }) => {
+import { Briefcase } from "lucide-react";
+
+const EmptyState = ({ title, description, action }) => {
   return (
-    <div className="text-center py-12 border border-dashed border-white/10 rounded-3xl bg-white/5">
-      <h4 className="text-white text-lg font-semibold">{title}</h4>
-      <p className="text-slate-400 text-sm mt-2 max-w-md mx-auto">
-        {description}
-      </p>
+    <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-slate-300 bg-white/60 p-12 text-center shadow-sm">
+      <div className="mb-4 rounded-2xl bg-indigo-100 p-4 text-indigo-600">
+        <Briefcase size={32} />
+      </div>
+      <h3 className="text-xl font-bold text-slate-800">{title}</h3>
+      <p className="mt-2 max-w-md text-slate-500">{description}</p>
+      {action && <div className="mt-6">{action}</div>}
     </div>
   );
 };
