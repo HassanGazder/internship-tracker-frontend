@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import api from "../lib/axios";
 import { ApplicationsContext } from "./ApplicationsContext";
+import { useAuth } from "./useAuthContext";
 
 export const ApplicationsProvider = ({ children }) => {
+  const { user } = useAuth();
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -20,6 +22,7 @@ export const ApplicationsProvider = ({ children }) => {
       setApplications(normalized);
     } catch (error) {
       console.error("Error fetching applications:", error);
+      setApplications([]);
     } finally {
       setLoading(false);
     }
@@ -75,10 +78,12 @@ export const ApplicationsProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    if (localStorage.getItem("token")) {
-      fetchApplications();
+    if (!user?._id) {
+      setApplications([]);
+      return;
     }
-  }, []);
+    fetchApplications();
+  }, [user?._id]);
 
   return (
     <ApplicationsContext.Provider

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import DashboardLayout from "../../components/layout/DashboardLayout";
 import api from "../../lib/axios";
+import { useInterviews } from "../../context/useInterviewsContext";
 import {
   Briefcase,
   Clock3,
@@ -11,6 +12,7 @@ import {
 function DashboardPage() {
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { interviews = [] } = useInterviews();
 
   const fetchApplications = async () => {
     try {
@@ -29,7 +31,6 @@ function DashboardPage() {
 
   const total = applications.length;
   const applied = applications.filter((app) => app.status === "Applied").length;
-  const interviews = applications.filter((app) => app.status === "Interview").length;
   const offers = applications.filter((app) => app.status === "Offer").length;
   const rejected = applications.filter((app) => app.status === "Rejected").length;
 
@@ -162,15 +163,24 @@ function DashboardPage() {
         </div>
 
         {/* Interview Summary */}
-        <div className="rounded-3xl border border-slate-800 bg-slate-900/80 p-6 shadow-xl shadow-black/10">
-          <h2 className="text-xl font-semibold text-white">
-            Interview Progress
-          </h2>
-          <p className="mt-2 text-sm text-slate-400">
-            You currently have <span className="font-semibold text-white">{interviews}</span> application(s) in interview stage.
-          </p>
-        </div>
-      </div>
+        <div className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
+  <p className="text-sm text-slate-400">Interview Reflections</p>
+  <h3 className="mt-4 text-4xl font-black text-white">{interviews.length}</h3>
+</div>
+
+<div className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
+  <p className="text-sm text-slate-400">Avg Interview Rating</p>
+  <h3 className="mt-4 text-4xl font-black text-white">
+    {interviews.length
+      ? (
+        interviews.reduce((sum, i) => sum + Number(i.rating || 0), 0) /
+        interviews.length
+        ).toFixed(1)
+      : "0.0"}
+    /10
+  </h3>
+</div>
+</div>
     </DashboardLayout>
   );
 }
