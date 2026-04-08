@@ -7,30 +7,21 @@ import InterviewsPage from "./pages/interviews/InterviewsPage";
 import AnalyticsPage from "./pages/analytics/AnalyticsPage";
 import ProfilePage from "./pages/profile/ProfilePage";
 import ProtectedRoute from "./routes/ProtectedRoute";
-import { useAuth } from "./context/AuthContext";
+import { useAuth } from "./context/useAuthContext";
 
 function App() {
   const { isAuthenticated } = useAuth();
 
   return (
     <Routes>
-      {/* Default Redirect */}
       <Route
         path="/"
         element={<Navigate to={isAuthenticated ? "/dashboard" : "/login"} />}
       />
 
-      {/* Public Routes */}
-      <Route
-        path="/login"
-        element={isAuthenticated ? <Navigate to="/dashboard" /> : <LoginPage />}
-      />
-      <Route
-        path="/register"
-        element={isAuthenticated ? <Navigate to="/dashboard" /> : <RegisterPage />}
-      />
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/register" element={<RegisterPage />} />
 
-      {/* Protected Routes */}
       <Route
         path="/dashboard"
         element={
@@ -74,12 +65,6 @@ function App() {
             <ProfilePage />
           </ProtectedRoute>
         }
-      />
-
-      {/* Catch All */}
-      <Route
-        path="*"
-        element={<Navigate to={isAuthenticated ? "/dashboard" : "/login"} />}
       />
     </Routes>
   );

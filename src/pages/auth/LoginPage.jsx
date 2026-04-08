@@ -4,8 +4,7 @@ import AuthLayout from "../../components/layout/AuthLayout";
 import AuthCard from "../../components/auth/AuthCard";
 import InputField from "../../components/auth/InputField";
 import PasswordInput from "../../components/auth/PasswordInput";
-import { loginUser } from "../../services/authservice";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../context/useAuthContext";
 import toast from "react-hot-toast";
 
 const LoginPage = () => {
@@ -31,9 +30,7 @@ const LoginPage = () => {
 
     try {
       setLoading(true);
-      const data = await loginUser(formData);
-
-      login(data.user, data.token);
+      await login(formData);
 
       toast.success("Login successful!");
       navigate("/dashboard");

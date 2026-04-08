@@ -1,45 +1,66 @@
-import { createContext, useContext, useEffect, useState } from "react";
-import { getToken, getUser, removeToken, removeUser, setToken, setUser } from "../utils/token";
-
-const AuthContext = createContext();
+import { useEffect, useState } from "react";
+import { getCurrentUser, loginUser, registerUser } from "../api/AuthApi";
+import { AuthContext } from "./AuthContextObject";
 
 export const AuthProvider = ({ children }) => {
-  const [user, setAuthUser] = useState(() => getUser());
-  const [token, setAuthToken] = useState(() => getToken());
+  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    setLoading(false); // eslint-disable-line react-hooks/set-state-in-effect
-  }, []);
+  const token = localStorage.getItem("token");
 
-  const login = (userData, authToken) => {
-    setAuthUser(userData);
-    setAuthToken(authToken);
-    setUser(userData);
-    setToken(authToken);
+  const fetchUser = async () => {
+    try {
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+
+      const data = await getCurrentUser();
+      setUser(data);
+    } catch (error) {
+      console.error("Failed to fetch user:", error);
+      localStorage.removeItem("token");
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const login = async (formData) => {
+    const data = await loginUser(formData);
+    localStorage.setItem("token", data.token);
+    setUser(data.user ?? data);
+    return data;
+  };
+
+  const register = async (formData) => {
+    const data = await registerUser(formData);
+    localStorage.setItem("token", data.token);
+    setUser(data.user ?? data);
+    return data;
   };
 
   const logout = () => {
-    setAuthUser(null);
-    setAuthToken(null);
-    removeToken();
-    removeUser();
+    localStorage.removeItem("token");
+    setUser(null);
   };
+
+  useEffect(() => {
+    fetchUser();
+  }, []);
 
   return (
     <AuthContext.Provider
       value={{
         user,
-        token,
         loading,
         login,
+        register,
         logout,
-        isAuthenticated: !!token,
+        isAuthenticated: !!user,
       }}
     >
       {children}
     </AuthContext.Provider>
   );
 };
-
-export const useAuth = () => useContext(AuthContext); // eslint-disable-line react-refresh/only-export-components

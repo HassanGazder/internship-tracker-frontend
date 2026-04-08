@@ -1,20 +1,30 @@
 import DashboardLayout from "../../components/layout/DashboardLayout";
+import PageHeader from "../../components/common/PageHeader";
 
-function InterviewsPage() {
+const InterviewsPage = () => {
   return (
     <DashboardLayout>
-      <div className="space-y-6">
-        <h1 className="text-3xl font-bold text-white">Interview Reflections</h1>
-        <p className="text-slate-400">
-          This page will show your interview notes, questions asked, feedback, and self-reflections.
+      <PageHeader
+        title="Interview Reflections"
+        subtitle="Track your interview experiences and improve over time."
+      />
+
+      <div className="rounded-3xl border border-slate-800 bg-slate-900/60 p-8 text-slate-300">
+        <h2 className="mb-4 text-2xl font-bold text-white">Coming in Next Phase</h2>
+        <p>
+          This section will let students save interview reflections like:
         </p>
 
-        <div className="rounded-3xl border border-slate-800 bg-slate-900/80 p-8">
-          <p className="text-slate-300">Interview module connected next.</p>
-        </div>
+        <ul className="mt-4 list-disc space-y-2 pl-6 text-slate-400">
+          <li>Questions asked in interview</li>
+          <li>What went well</li>
+          <li>What needs improvement</li>
+          <li>Confidence rating</li>
+          <li>Interview preparation notes</li>
+        </ul>
       </div>
     </DashboardLayout>
   );
-}
+};
 
 export default InterviewsPage;
