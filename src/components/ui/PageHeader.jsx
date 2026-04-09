@@ -1,8 +1,14 @@
-const PageHeader = ({ title, subtitle }) => {
+const PageHeader = ({ title, subtitle, action }) => {
   return (
-    <div className="mb-6">
-      <h2 className="text-2xl md:text-3xl font-bold text-slate-900">{title}</h2>
-      {subtitle && <p className="text-[var(--color-muted)] mt-2">{subtitle}</p>}
+    <div className="mb-8 flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
+      <div>
+        <h1 className="text-3xl font-bold tracking-tight text-white">{title}</h1>
+        {subtitle && (
+          <p className="mt-2 text-sm text-slate-400">{subtitle}</p>
+        )}
+      </div>
+
+      {action && <div>{action}</div>}
     </div>
   );
 };
