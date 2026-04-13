@@ -1,15 +1,15 @@
 const statusStyles = {
-  Applied: "bg-blue-100 text-blue-700",
-  Interview: "bg-amber-100 text-amber-700",
-  Offer: "bg-emerald-100 text-emerald-700",
-  Rejected: "bg-rose-100 text-rose-700",
+  Applied: "bg-blue-500/15 text-blue-300 border-blue-400/20",
+  Interview: "bg-yellow-500/15 text-yellow-300 border-yellow-400/20",
+  Offer: "bg-green-500/15 text-green-300 border-green-400/20",
+  Rejected: "bg-red-500/15 text-red-300 border-red-400/20",
 };
 
 const StatusBadge = ({ status }) => {
   return (
     <span
-      className={`rounded-full px-3 py-1 text-xs font-semibold ${
-        statusStyles[status] || "bg-slate-100 text-slate-700"
+      className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${
+        statusStyles[status] || "bg-slate-500/15 text-slate-300 border-slate-400/20"
       }`}
     >
       {status}

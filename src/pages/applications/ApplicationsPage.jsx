@@ -1,16 +1,27 @@
-/* eslint-disable no-unused-vars */
 import { useMemo, useState } from "react";
-import { Plus, Pencil, Trash2, Search } from "lucide-react";
-import toast from "react-hot-toast";
 import DashboardLayout from "../../components/layout/DashboardLayout";
-import PageHeader from "../../components/ui/PageHeader";
-import EmptyState from "../../components/ui/EmptyState";
-import LoadingSpinner from "../../components/ui/LoadingSpinner";
-import ConfirmModal from "../../components/ui/ConfirmModal";
-import ApplicationFormModal from "./ApplicationFormModal";
 import { useApplications } from "../../context/useApplicationsContext";
+import { exportApplicationsToCSV } from "../../utils/exportToCSV";
+import ExportButton from "../applications/ExportButton";
+import StatusBadge from "../applications/StatusBadge";
+import EmptyState from "../../components/common/EmptyState";
+import LoadingSpinner from "../../components/common/LoadingSpinner";
+import PageHeader from "../../components/common/PageHeader";
+import ConfirmModal from "../../components/ui/ConfirmModal";
+import toast from "react-hot-toast";
+import { Pencil, Plus, Trash2, Search } from "lucide-react";
 
-const statusOptions = ["All", "Applied", "Interview", "Offer", "Rejected"];
+const initialForm = {
+  companyName: "",
+  jobTitle: "",
+  location: "",
+  applicationDate: "",
+  deadline: "",
+  status: "Applied",
+  salary: "",
+  notes: "",
+  jobPostLink: "",
+};
 
 const ApplicationsPage = () => {
   const {
@@ -21,70 +32,62 @@ const ApplicationsPage = () => {
     deleteApplication,
   } = useApplications();
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingApplication, setEditingApplication] = useState(null);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
-  const [sortBy, setSortBy] = useState("newest");
-  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingApp, setEditingApp] = useState(null);
+  const [formData, setFormData] = useState(initialForm);
+  const [deleteId, setDeleteId] = useState(null);
 
   const filteredApplications = useMemo(() => {
-    let filtered = [...applications];
+    return applications.filter((app) => {
+      const matchesSearch =
+        app.companyName?.toLowerCase().includes(search.toLowerCase()) ||
+        app.jobTitle?.toLowerCase().includes(search.toLowerCase()) ||
+        app.location?.toLowerCase().includes(search.toLowerCase());
 
-    if (searchTerm.trim()) {
-      const search = searchTerm.toLowerCase();
-      filtered = filtered.filter(
-        (app) =>
-          app.companyName?.toLowerCase().includes(search) ||
-          app.jobTitle?.toLowerCase().includes(search) ||
-          app.location?.toLowerCase().includes(search)
-      );
-    }
+      const matchesStatus =
+        statusFilter === "All" || app.status === statusFilter;
 
-    if (statusFilter !== "All") {
-      filtered = filtered.filter((app) => app.status === statusFilter);
-    }
+      return matchesSearch && matchesStatus;
+    });
+  }, [applications, search, statusFilter]);
 
-    if (sortBy === "newest") {
-      filtered.sort(
-        (a, b) => new Date(b.applicationDate) - new Date(a.applicationDate)
-      );
-    } else if (sortBy === "oldest") {
-      filtered.sort(
-        (a, b) => new Date(a.applicationDate) - new Date(b.applicationDate)
-      );
-    } else if (sortBy === "deadline") {
-      filtered.sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
-    }
+  const handleChange = (e) => {
+    setFormData((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
+  };
 
-    return filtered;
-  }, [applications, searchTerm, statusFilter, sortBy]);
-
-  const handleAddNew = () => {
-    setEditingApplication(null);
+  const openAddModal = () => {
+    setEditingApp(null);
+    setFormData(initialForm);
     setIsModalOpen(true);
   };
 
-  const handleEdit = (application) => {
-    setEditingApplication(application);
+  const openEditModal = (app) => {
+    setEditingApp(app);
+    setFormData({
+      companyName: app.companyName || "",
+      jobTitle: app.jobTitle || "",
+      location: app.location || "",
+      applicationDate: app.applicationDate?.slice(0, 10) || "",
+      deadline: app.deadline?.slice(0, 10) || "",
+      status: app.status || "Applied",
+      salary: app.salary || "",
+      notes: app.notes || "",
+      jobPostLink: app.jobPostLink || "",
+    });
     setIsModalOpen(true);
   };
 
-  const handleDelete = async () => {
-    if (!deleteTarget) return;
-    try {
-      await deleteApplication(deleteTarget._id);
-      toast.success("Application deleted successfully");
-      setDeleteTarget(null);
-    } catch (error) {
-      toast.error("Failed to delete application");
-    }
-  };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  const handleSubmit = async (formData) => {
     try {
-      if (editingApplication) {
-        await updateApplication(editingApplication._id, formData);
+      if (editingApp) {
+        await updateApplication(editingApp._id, formData);
         toast.success("Application updated successfully");
       } else {
         await createApplication(formData);
@@ -92,24 +95,22 @@ const ApplicationsPage = () => {
       }
 
       setIsModalOpen(false);
-      setEditingApplication(null);
+      setFormData(initialForm);
+      setEditingApp(null);
+    // eslint-disable-next-line no-unused-vars
     } catch (error) {
       toast.error("Something went wrong");
     }
   };
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "Applied":
-        return "bg-blue-500/20 text-blue-300 border border-blue-400/20";
-      case "Interview":
-        return "bg-yellow-500/20 text-yellow-300 border border-yellow-400/20";
-      case "Offer":
-        return "bg-emerald-500/20 text-emerald-300 border border-emerald-400/20";
-      case "Rejected":
-        return "bg-red-500/20 text-red-300 border border-red-400/20";
-      default:
-        return "bg-slate-700 text-slate-300";
+  const handleDelete = async () => {
+    try {
+      await deleteApplication(deleteId);
+      toast.success("Application deleted successfully");
+      setDeleteId(null);
+    // eslint-disable-next-line no-unused-vars
+    } catch (error) {
+      toast.error("Failed to delete application");
     }
   };
 
@@ -117,118 +118,113 @@ const ApplicationsPage = () => {
     <DashboardLayout>
       <PageHeader
         title="Applications"
-        subtitle="Track, manage, and update all your internship applications in one place."
-        action={
-          <button
-            onClick={handleAddNew}
-            className="inline-flex items-center gap-2 rounded-2xl bg-cyan-500 px-5 py-3 text-sm font-semibold text-slate-950 shadow-lg shadow-cyan-500/20 transition hover:scale-[1.02] hover:bg-cyan-400"
-          >
-            <Plus size={18} />
-            Add Application
-          </button>
+        subtitle="Manage, track, and export all your internship applications in one place."
+        actions={
+          <>
+            <ExportButton
+              onClick={() => {
+                exportApplicationsToCSV(filteredApplications, "internship_applications");
+                toast.success("CSV exported successfully");
+              }}
+            />
+            <button
+              onClick={openAddModal}
+              className="inline-flex items-center gap-2 rounded-xl bg-cyan-500 px-4 py-2.5 text-sm font-semibold text-slate-950 hover:bg-cyan-400 transition"
+            >
+              <Plus size={16} />
+              Add Application
+            </button>
+          </>
         }
       />
 
-      <div className="mb-6 grid grid-cols-1 gap-4 lg:grid-cols-4">
-        <div className="relative lg:col-span-2">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+      <div className="mb-6 grid gap-4 md:grid-cols-3">
+        <div className="relative">
+          <Search
+            size={18}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+          />
           <input
             type="text"
-            placeholder="Search by company, job title, or location..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full rounded-2xl border border-white/10 bg-white/5 py-3 pl-11 pr-4 text-sm text-white outline-none backdrop-blur-xl placeholder:text-slate-500 focus:border-cyan-400/40"
+            placeholder="Search company, role, location..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full rounded-2xl border border-white/10 bg-white/5 py-3 pl-10 pr-4 text-white outline-none placeholder:text-slate-500 focus:border-cyan-400"
           />
         </div>
 
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none backdrop-blur-xl focus:border-cyan-400/40"
+          className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none focus:border-cyan-400"
         >
-          {statusOptions.map((status) => (
-            <option key={status} value={status} className="bg-slate-900">
-              {status}
-            </option>
-          ))}
+          <option className="bg-slate-900">All</option>
+          <option className="bg-slate-900">Applied</option>
+          <option className="bg-slate-900">Interview</option>
+          <option className="bg-slate-900">Offer</option>
+          <option className="bg-slate-900">Rejected</option>
         </select>
 
-        <select
-          value={sortBy}
-          onChange={(e) => setSortBy(e.target.value)}
-          className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none backdrop-blur-xl focus:border-cyan-400/40"
-        >
-          <option value="newest" className="bg-slate-900">Newest</option>
-          <option value="oldest" className="bg-slate-900">Oldest</option>
-          <option value="deadline" className="bg-slate-900">Deadline</option>
-        </select>
+        <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-300">
+          Showing <span className="font-semibold text-white">{filteredApplications.length}</span> applications
+        </div>
       </div>
 
-      <div className="rounded-3xl border border-white/10 bg-white/5 p-4 shadow-xl backdrop-blur-xl">
-        {loading ? (
-          <LoadingSpinner text="Loading applications..." />
-        ) : filteredApplications.length === 0 ? (
-          <EmptyState
-            title="No applications found"
-            description="You haven’t added any applications yet or no results match your filters."
-            action={
-              <button
-                onClick={handleAddNew}
-                className="rounded-2xl bg-cyan-500 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400"
-              >
-                Add Your First Application
-              </button>
-            }
-          />
-        ) : (
+      {loading ? (
+        <LoadingSpinner />
+      ) : filteredApplications.length === 0 ? (
+        <EmptyState
+          title="No applications found"
+          description="Start by adding your first internship application and track everything in one place."
+        />
+      ) : (
+        <div className="overflow-hidden rounded-3xl border border-white/10 bg-white/5 shadow-xl">
           <div className="overflow-x-auto">
             <table className="min-w-full text-left text-sm text-slate-300">
-              <thead>
-                <tr className="border-b border-white/10 text-slate-400">
-                  <th className="px-4 py-4 font-medium">Company</th>
-                  <th className="px-4 py-4 font-medium">Role</th>
-                  <th className="px-4 py-4 font-medium">Location</th>
-                  <th className="px-4 py-4 font-medium">Applied</th>
-                  <th className="px-4 py-4 font-medium">Deadline</th>
-                  <th className="px-4 py-4 font-medium">Status</th>
-                  <th className="px-4 py-4 font-medium">Actions</th>
+              <thead className="border-b border-white/10 bg-white/5 text-xs uppercase tracking-wider text-slate-400">
+                <tr>
+                  <th className="px-6 py-4">Company</th>
+                  <th className="px-6 py-4">Role</th>
+                  <th className="px-6 py-4">Location</th>
+                  <th className="px-6 py-4">Applied</th>
+                  <th className="px-6 py-4">Deadline</th>
+                  <th className="px-6 py-4">Status</th>
+                  <th className="px-6 py-4">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredApplications.map((app) => (
                   <tr
                     key={app._id}
-                    className="border-b border-white/5 transition hover:bg-white/[0.03]"
+                    className="border-b border-white/5 hover:bg-white/[0.03] transition"
                   >
-                    <td className="px-4 py-4 font-medium text-white">{app.companyName}</td>
-                    <td className="px-4 py-4">{app.jobTitle}</td>
-                    <td className="px-4 py-4">{app.location}</td>
-                    <td className="px-4 py-4">
+                    <td className="px-6 py-4 font-medium text-white">{app.companyName}</td>
+                    <td className="px-6 py-4">{app.jobTitle}</td>
+                    <td className="px-6 py-4">{app.location}</td>
+                    <td className="px-6 py-4">
                       {app.applicationDate
                         ? new Date(app.applicationDate).toLocaleDateString()
                         : "-"}
                     </td>
-                    <td className="px-4 py-4">
+                    <td className="px-6 py-4">
                       {app.deadline
                         ? new Date(app.deadline).toLocaleDateString()
                         : "-"}
                     </td>
-                    <td className="px-4 py-4">
-                      <span className={`rounded-full px-3 py-1 text-xs font-medium ${getStatusColor(app.status)}`}>
-                        {app.status}
-                      </span>
+                    <td className="px-6 py-4">
+                      <StatusBadge status={app.status} />
                     </td>
-                    <td className="px-4 py-4">
-                      <div className="flex items-center gap-3">
+                    <td className="px-6 py-4">
+                      <div className="flex gap-2">
                         <button
-                          onClick={() => handleEdit(app)}
-                          className="rounded-xl bg-white/5 p-2 text-slate-300 transition hover:bg-cyan-500/20 hover:text-cyan-300"
+                          onClick={() => openEditModal(app)}
+                          className="rounded-xl border border-white/10 bg-white/5 p-2 text-slate-300 hover:bg-white/10"
                         >
                           <Pencil size={16} />
                         </button>
                         <button
-                          onClick={() => setDeleteTarget(app)}
-                          className="rounded-xl bg-white/5 p-2 text-slate-300 transition hover:bg-red-500/20 hover:text-red-300"
+                          onClick={() => setDeleteId(app._id)}
+                          className="rounded-xl border border-red-500/20 bg-red-500/10 p-2 text-red-300 hover:bg-red-500/20"
                         >
                           <Trash2 size={16} />
                         </button>
@@ -239,27 +235,91 @@ const ApplicationsPage = () => {
               </tbody>
             </table>
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
-      <ApplicationFormModal
-        isOpen={isModalOpen}
-        onClose={() => {
-          setIsModalOpen(false);
-          setEditingApplication(null);
-        }}
-        onSubmit={handleSubmit}
-        initialData={editingApplication}
-      />
+      {/* Add/Edit Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
+          <div className="w-full max-w-3xl rounded-3xl border border-white/10 bg-slate-900 p-6 shadow-2xl">
+            <h2 className="mb-6 text-2xl font-bold text-white">
+              {editingApp ? "Edit Application" : "Add New Application"}
+            </h2>
+
+            <form onSubmit={handleSubmit} className="grid gap-4 md:grid-cols-2">
+              {[
+                { label: "Company Name", name: "companyName", type: "text" },
+                { label: "Job Title", name: "jobTitle", type: "text" },
+                { label: "Location", name: "location", type: "text" },
+                { label: "Application Date", name: "applicationDate", type: "date" },
+                { label: "Deadline", name: "deadline", type: "date" },
+                { label: "Salary", name: "salary", type: "text" },
+                { label: "Job Post Link", name: "jobPostLink", type: "url" },
+              ].map((field) => (
+                <div key={field.name}>
+                  <label className="mb-2 block text-sm text-slate-300">{field.label}</label>
+                  <input
+                    type={field.type}
+                    name={field.name}
+                    value={formData[field.name]}
+                    onChange={handleChange}
+                    className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none placeholder:text-slate-500 focus:border-cyan-400"
+                  />
+                </div>
+              ))}
+
+              <div>
+                <label className="mb-2 block text-sm text-slate-300">Status</label>
+                <select
+                  name="status"
+                  value={formData.status}
+                  onChange={handleChange}
+                  className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none focus:border-cyan-400"
+                >
+                  <option className="bg-slate-900">Applied</option>
+                  <option className="bg-slate-900">Interview</option>
+                  <option className="bg-slate-900">Offer</option>
+                  <option className="bg-slate-900">Rejected</option>
+                </select>
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="mb-2 block text-sm text-slate-300">Notes</label>
+                <textarea
+                  name="notes"
+                  rows="4"
+                  value={formData.notes}
+                  onChange={handleChange}
+                  className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none placeholder:text-slate-500 focus:border-cyan-400"
+                />
+              </div>
+
+              <div className="md:col-span-2 mt-4 flex justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(false)}
+                  className="rounded-xl border border-white/10 px-5 py-2.5 text-sm text-slate-300 hover:bg-white/5"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="rounded-xl bg-cyan-500 px-5 py-2.5 text-sm font-semibold text-slate-950 hover:bg-cyan-400"
+                >
+                  {editingApp ? "Update Application" : "Save Application"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       <ConfirmModal
-        isOpen={!!deleteTarget}
-        onClose={() => setDeleteTarget(null)}
+        isOpen={!!deleteId}
+        onClose={() => setDeleteId(null)}
         onConfirm={handleDelete}
-        title="Delete Application?"
-        description={`Are you sure you want to delete ${
-          deleteTarget?.jobTitle || "this application"
-        } at ${deleteTarget?.companyName || ""}?`}
+        title="Delete Application"
+        message="Are you sure you want to delete this application? This action cannot be undone."
       />
     </DashboardLayout>
   );
