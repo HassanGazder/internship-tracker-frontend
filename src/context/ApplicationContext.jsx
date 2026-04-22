@@ -92,6 +92,7 @@ export const ApplicationsProvider = ({ children }) => {
         loading,
         fetchApplications,
         addApplication,
+        createApplication: addApplication,
         updateApplication,
         deleteApplication,
         // Backward-compatible aliases used in some pages

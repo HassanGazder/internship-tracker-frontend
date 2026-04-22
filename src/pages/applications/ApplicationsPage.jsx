@@ -20,7 +20,7 @@ const initialForm = {
   status: "Applied",
   salary: "",
   notes: "",
-  jobPostLink: "",
+  jobLink: "",
 };
 
 const ApplicationsPage = () => {
@@ -77,7 +77,7 @@ const ApplicationsPage = () => {
       status: app.status || "Applied",
       salary: app.salary || "",
       notes: app.notes || "",
-      jobPostLink: app.jobPostLink || "",
+      jobLink: app.jobLink || "",
     });
     setIsModalOpen(true);
   };
@@ -87,10 +87,18 @@ const ApplicationsPage = () => {
 
     try {
       if (editingApp) {
-        await updateApplication(editingApp._id, formData);
+        const result = await updateApplication(editingApp._id, formData);
+        if (!result?.success) {
+          toast.error(result?.message || "Failed to update application");
+          return;
+        }
         toast.success("Application updated successfully");
       } else {
-        await createApplication(formData);
+        const result = await createApplication(formData);
+        if (!result?.success) {
+          toast.error(result?.message || "Failed to add application");
+          return;
+        }
         toast.success("Application added successfully");
       }
 
@@ -105,7 +113,11 @@ const ApplicationsPage = () => {
 
   const handleDelete = async () => {
     try {
-      await deleteApplication(deleteId);
+      const result = await deleteApplication(deleteId);
+      if (!result?.success) {
+        toast.error(result?.message || "Failed to delete application");
+        return;
+      }
       toast.success("Application deleted successfully");
       setDeleteId(null);
     // eslint-disable-next-line no-unused-vars
@@ -254,7 +266,7 @@ const ApplicationsPage = () => {
                 { label: "Application Date", name: "applicationDate", type: "date" },
                 { label: "Deadline", name: "deadline", type: "date" },
                 { label: "Salary", name: "salary", type: "text" },
-                { label: "Job Post Link", name: "jobPostLink", type: "url" },
+                { label: "Job Link", name: "jobLink", type: "url" },
               ].map((field) => (
                 <div key={field.name}>
                   <label className="mb-2 block text-sm text-slate-300">{field.label}</label>

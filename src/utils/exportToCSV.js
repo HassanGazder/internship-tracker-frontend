@@ -22,7 +22,7 @@ export const exportApplicationsToCSV = (applications, fileName = "applications")
     app.status || "",
     app.salary || "",
     app.notes || "",
-    app.jobPostLink || "",
+    app.jobLink || "",
   ]);
 
   const csvContent =

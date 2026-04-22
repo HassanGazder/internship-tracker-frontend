@@ -13,7 +13,7 @@ const DashboardLayout = ({ children }) => {
 
       {/* Mobile Sidebar */}
       <MobileSidebar
-        open={mobileOpen}
+        isOpen={mobileOpen}
         onClose={() => setMobileOpen(false)}
       />
 
