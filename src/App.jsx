@@ -8,6 +8,7 @@ import AnalyticsPage from "./pages/analytics/AnalyticsPage";
 import ProfilePage from "./pages/profile/ProfilePage";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import { useAuth } from "./context/useAuthContext";
+import AlertsPage from "./pages/alerts/AlertsPage";
 
 function App() {
   const { isAuthenticated } = useAuth();
@@ -66,6 +67,7 @@ function App() {
           </ProtectedRoute>
         }
       />
+      <Route path="/alerts" element={<ProtectedRoute><AlertsPage /></ProtectedRoute>} />
     </Routes>
   );
 }

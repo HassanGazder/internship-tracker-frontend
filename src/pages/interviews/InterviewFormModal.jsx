@@ -31,8 +31,8 @@ const InterviewFormModal = ({ isOpen, onClose, onSubmit, initialData }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
-      <div className="w-full max-w-3xl rounded-3xl border border-white/10 bg-slate-950 p-6 shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-dark/70 p-4 backdrop-blur-sm">
+      <div className="w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-3xl border border-white/10 bg-slate-950 p-6 shadow-2xl">
         <div className="mb-6 flex items-center justify-between">
           <h2 className="text-2xl font-bold text-white">
             {initialData ? "Edit Interview Reflection" : "Add Interview Reflection"}
